@@ -1,0 +1,130 @@
+<!-- result.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evaluation Result</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 50px;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        p {
+            margin: 20px 0;
+            color: #555;
+        }
+
+        a {
+            text-decoration: none;
+            color: #4caf50;
+            font-weight: bold;
+        }
+
+        a:hover {
+            color: #333;
+        }
+
+        table {
+            width: 50%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+
+        th {
+            background-color: #4caf50; /* Same color as the submit button */
+            color: #fff; /* Text color for better visibility */
+        }
+
+        canvas {
+            margin-top: 20px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h2>Evaluation Result</h2>
+    {% if predictions %}
+        <p>Date: {{ selected_date }}</p>
+        <table>
+            <thead>
+                <tr>
+                    <th>Hour</th>
+                    <th>Temperature</th>
+                    <th>Pressure</th>
+                    <th>Humidity</th>
+
+
+                    <!-- Add more fields as needed -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for prediction in predictions %}
+                    <tr><centre>
+                        <td>{{ prediction[3] }}</td>
+                        <td>{{ prediction[4]|round(2) }}</td>
+                        <td>{{ prediction[5]|round(2) }}</td>
+                        <td>{{ prediction[6]|round(2) }}</td>
+
+                    </centre>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <canvas id="temperatureChart" width="400" height="200"></canvas>
+        <script>
+            var ctx = document.getElementById('temperatureChart').getContext('2d');
+            
+            // Convert the generator to a list using list() function
+            var hours = {{ predictions| map(attribute=3)|list|tojson }};
+            var temperatures = {{ predictions|map(attribute=4)|list|tojson }};
+        
+            var chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: hours,
+                    datasets: [{
+                        label: 'Temperature',
+                        data: temperatures,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        borderWidth: 1,
+                        fill: false
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'linear',
+                            position: 'bottom'
+                        },
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        </script>
+        
+    {% else %}
+        <h2>{{ error_message }}</h2>
+    {% endif %}
+    <br>
+    <a href="/">Go back to form</a>
+</body>
+</html>
